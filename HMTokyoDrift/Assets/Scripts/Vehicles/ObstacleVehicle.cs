@@ -1,33 +1,16 @@
 using UnityEngine;
 
-public class ObstacleVehicle : MonoBehaviour, IPoolable
+public class ObstacleVehicle : VehicleBase
 {
-    private int currentLane;
-    public int CurrentLane => currentLane;
-    public bool IsActive => gameObject.activeSelf;
-
-    public void Initialize(int lane)
+    public override void HandleCollision(IVehicle other)
     {
-        currentLane = lane;
-    }
-    
-    private void OnTriggerEnter(Collider other)
-    {
-        if (!IsActive) return;
-
-        if (other.CompareTag("Player"))
+        if (other is ObstacleVehicle)
         {
             OnDespawn();
         }
     }
-
-    public void OnSpawn()
+    public override void Initialize(int lane)
     {
-        gameObject.SetActive(true);
-    }
-
-    public void OnDespawn()
-    {
-        gameObject.SetActive(false);
+        base.Initialize(lane);
     }
 }

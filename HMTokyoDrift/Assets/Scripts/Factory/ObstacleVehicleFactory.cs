@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VehicleFactory : MonoBehaviour
+public class ObstacleVehicleFactory : VehicleFactoryBase
 {
     [SerializeField] private ObstacleVehicleSettings settings;
     private ObjectPool<ObstacleVehicle>[] obstaclePools;
@@ -12,7 +12,7 @@ public class VehicleFactory : MonoBehaviour
         InitializePool();
     }
 
-    private void InitializePool()
+    protected override void InitializePool()
     {
         obstaclePools = new ObjectPool<ObstacleVehicle>[settings.obstaclePrefabs.Length];
         validPoolIndices.Clear();
@@ -36,14 +36,9 @@ public class VehicleFactory : MonoBehaviour
 
             validPoolIndices.Add(i);
         }
-
-        if (validPoolIndices.Count == 0)
-        {
-            Debug.LogError("No valid pools were created!");
-        }
     }
 
-    public ObstacleVehicle GetObstacleFromPool(Vector3 position, Quaternion rotation, int lane)
+    public override VehicleBase GetVehicle(Vector3 position, Quaternion rotation, int lane)
     {
         if (validPoolIndices.Count == 0)
         {
@@ -63,9 +58,9 @@ public class VehicleFactory : MonoBehaviour
         return obstacle;
     }
 
-    public void ReturnObstacleToPool(ObstacleVehicle obstacle)
+    public override void ReturnVehicle(VehicleBase vehicle)
     {
-        if (obstacle == null) return;
+        if (vehicle is not ObstacleVehicle obstacle) return;
         
         for (int i = 0; i < settings.obstaclePrefabs.Length; i++)
         {
@@ -77,7 +72,7 @@ public class VehicleFactory : MonoBehaviour
             }
         }
     }
-    public void ReturnAllObstacles()
+    public override void ReturnAllVehicles()
     {
         foreach (var poolIndex in validPoolIndices)
         {

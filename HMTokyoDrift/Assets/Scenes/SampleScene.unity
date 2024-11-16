@@ -445,7 +445,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: 5b125fd6a5d40464f854b31bd3dd840e, type: 2}
-  vehicleFactory: {fileID: 1691761141}
+  obstacleFactory: {fileID: 1691761141}
 --- !u!114 &1691761141
 MonoBehaviour:
   m_ObjectHideFlags: 0

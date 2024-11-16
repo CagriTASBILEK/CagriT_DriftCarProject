@@ -16,5 +16,5 @@ MonoBehaviour:
   - {fileID: 5796462046832887360, guid: 08d4e7be96f71a24a9c1013c2335b740, type: 3}
   - {fileID: 5796462046832887360, guid: 3ba9aefa6bcdb7f45aa1985b96dd4b55, type: 3}
   initialPoolSize: 15
-  maxPoolSize: 15
+  maxPoolSize: 30
   expandSize: 5

@@ -4,7 +4,7 @@ using UnityEngine;
 public class SpawnManager : Singleton<SpawnManager>
 {
     [SerializeField] private SpawnSettings settings;
-    [SerializeField] private VehicleFactory vehicleFactory;
+    [SerializeField] private ObstacleVehicleFactory obstacleFactory;
 
     private void OnEnable()
     {
@@ -65,7 +65,7 @@ public class SpawnManager : Singleton<SpawnManager>
             Vector3 spawnPosition = TrackManager.Instance.GetSpawnPositionForLane(point.lane);
             spawnPosition.z = segment.transform.position.z + point.zPos;
 
-            var obstacle = vehicleFactory.GetObstacleFromPool(spawnPosition, Quaternion.identity, point.lane);
+            var obstacle = obstacleFactory.GetVehicle(spawnPosition, Quaternion.identity, point.lane) as ObstacleVehicle;
             if (obstacle != null)
             {
                 obstacle.transform.SetParent(segment.transform);
@@ -92,7 +92,7 @@ public class SpawnManager : Singleton<SpawnManager>
             {
                 obstacle.OnDespawn();
                 obstacle.transform.SetParent(null);
-                vehicleFactory.ReturnObstacleToPool(obstacle);
+                obstacleFactory.ReturnVehicle(obstacle);
             }
         }
     }
