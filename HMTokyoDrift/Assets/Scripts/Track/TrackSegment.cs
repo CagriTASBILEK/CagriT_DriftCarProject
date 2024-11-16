@@ -11,6 +11,10 @@ public class TrackSegment : MonoBehaviour, IPoolable
 
     public void OnDespawn()
     {
+        if (SpawnManager.Instance != null)
+        {
+            SpawnManager.Instance.ClearObstaclesFromSegment(this);
+        }
         gameObject.SetActive(false);
     }
 }

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trackSegmentPrefab: {fileID: 8924189417120447073, guid: 65fc9a45c0702bd469553529ded83f04, type: 3}
   activeSegmentCount: 3
-  segmentLength: 50
+  segmentLength: 120
   laneCount: 3
-  laneWidth: 4
+  laneWidth: 2
   initialPoolSize: 5
   maxPoolSize: 8

@@ -21,6 +21,20 @@ public class GameManager : Singleton<GameManager>
         base.Awake();
         InitializeGame();
     }
+    
+    private void Start()
+    {
+        StartGame();
+    }
+    
+    public void StartGame()
+    {
+        if (currentGameState == GameState.Playing) return;
+        
+        currentGameState = GameState.Playing;
+        GameEvents.TriggerGameStart();
+        GameEvents.TriggerSpeedChange(currentGameSpeed);
+    }
 
     private void OnEnable()
     {
@@ -48,16 +62,18 @@ public class GameManager : Singleton<GameManager>
         
         currentGameSpeed = settings.initialGameSpeed;
         currentDifficultyMultiplier = settings.difficultyMultiplier;
-        currentGameState = GameState.MainMenu;
         lastSpeedUpdateTime = 0f;
         lastDifficultyUpdateTime = 0f;
         isGameInitialized = true;
         
+        TrackManager.Instance.Initialize();
         GameEvents.TriggerGameInitialize();
     }
 
     private void HandleGameStart()
     {
+        if (currentGameState == GameState.Playing) return;
+        
         currentGameState = GameState.Playing;
         StartCoroutine(GameUpdateRoutine());
     }

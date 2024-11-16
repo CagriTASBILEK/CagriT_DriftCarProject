@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0224f8771643e6439b8b05a7fa173e5, type: 3}
   m_Name: SpawnSettings
   m_EditorClassIdentifier: 
-  minSpawnInterval: 1
-  maxSpawnInterval: 3
   initialPoolSize: 10
   maxPoolSize: 20
   expandSize: 5
-  spawnDistance: 100
-  despawnDistance: -10
+  minObstaclesPerSegment: 2
+  maxObstaclesPerSegment: 5
+  minDistanceBetweenVehicles: 60

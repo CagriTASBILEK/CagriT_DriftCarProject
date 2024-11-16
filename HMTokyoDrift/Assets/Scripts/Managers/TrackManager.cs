@@ -5,38 +5,23 @@ using UnityEngine;
 public class TrackManager : Singleton<TrackManager>
 {
     [SerializeField] private TrackSettings settings;
-    
+
     private ObjectPool<TrackSegment> trackPool;
     private readonly List<TrackSegment> activeSegments = new();
-    private readonly float[] lanePositions;
+    private float[] lanePositions;
     private float moveSpeed;
-    private float totalDistance;
     private const float UPDATE_INTERVAL = 0.02f;
 
-    public TrackManager()
-    {
-        lanePositions = new float[settings.laneCount];
-    }
+    public TrackSettings Settings => settings;
+    public IReadOnlyList<TrackSegment> GetActiveSegments() => activeSegments;
 
     protected override void Awake()
     {
         base.Awake();
-        Initialize();
+        lanePositions = new float[settings.laneCount];
     }
 
-    private void OnEnable()
-    {
-        GameEvents.OnGameStart += HandleGameStart;
-        GameEvents.OnSpeedChange += HandleSpeedChange;
-    }
-
-    private void OnDisable()
-    {
-        GameEvents.OnGameStart -= HandleGameStart;
-        GameEvents.OnSpeedChange -= HandleSpeedChange;
-    }
-
-    private void Initialize()
+    public void Initialize()
     {
         InitializePool();
         InitializeLanes();
@@ -45,6 +30,12 @@ public class TrackManager : Singleton<TrackManager>
 
     private void InitializePool()
     {
+        if (settings.trackSegmentPrefab == null)
+        {
+            Debug.LogError("Track Segment Prefab is missing!");
+            return;
+        }
+
         trackPool = new ObjectPool<TrackSegment>(
             settings.trackSegmentPrefab.GetComponent<TrackSegment>(),
             transform,
@@ -56,7 +47,7 @@ public class TrackManager : Singleton<TrackManager>
     private void InitializeLanes()
     {
         float startX = -(settings.laneCount - 1) * settings.laneWidth / 2f;
-        
+
         for (int i = 0; i < settings.laneCount; i++)
         {
             lanePositions[i] = startX + (i * settings.laneWidth);
@@ -65,9 +56,21 @@ public class TrackManager : Singleton<TrackManager>
 
     private void SpawnInitialTrack()
     {
-        for (int i = 0; i < settings.activeSegmentCount; i++)
+        Vector3 firstPosition = Vector3.zero;
+        TrackSegment firstSegment = trackPool.Get(firstPosition, Quaternion.identity);
+        if (firstSegment != null)
         {
-            SpawnNewSegment();
+            activeSegments.Add(firstSegment);
+        }
+
+        for (int i = 1; i < settings.activeSegmentCount; i++)
+        {
+            Vector3 position = new Vector3(0f, 0f, settings.segmentLength * i);
+            TrackSegment segment = trackPool.Get(position, Quaternion.identity);
+            if (segment != null)
+            {
+                activeSegments.Add(segment);
+            }
         }
     }
 
@@ -92,30 +95,27 @@ public class TrackManager : Singleton<TrackManager>
             TrackSegment segment = activeSegments[i];
             segment.transform.Translate(moveVector, Space.World);
 
-            if (segment.transform.position.z < -settings.segmentLength)
+            if (segment.transform.position.z < -settings.segmentLength * 1.5f)
             {
-                RecycleSegment(segment);
-                SpawnNewSegment();
+                TrackSegment lastSegment = activeSegments[activeSegments.Count - 1];
+                float newZ = lastSegment.transform.position.z + settings.segmentLength;
+
+                activeSegments.Remove(segment);
+
+                segment.OnDespawn();
+
+
+                segment.transform.position = new Vector3(0f, 0f, newZ);
+                segment.OnSpawn();
+                activeSegments.Add(segment);
+
+
+                if (SpawnManager.Instance != null)
+                {
+                    SpawnManager.Instance.SpawnObstaclesForSegment(segment);
+                }
             }
         }
-    }
-
-    private void SpawnNewSegment()
-    {
-        Vector3 spawnPosition = Vector3.forward * totalDistance;
-        TrackSegment segment = trackPool.Get(spawnPosition, Quaternion.identity);
-        
-        if (segment != null)
-        {
-            activeSegments.Add(segment);
-            totalDistance += settings.segmentLength;
-        }
-    }
-
-    private void RecycleSegment(TrackSegment segment)
-    {
-        activeSegments.Remove(segment);
-        trackPool.Return(segment);
     }
 
     public Vector3 GetSpawnPositionForLane(int laneIndex)
@@ -125,8 +125,19 @@ public class TrackManager : Singleton<TrackManager>
 
         return new Vector3(lanePositions[laneIndex], 0f, settings.segmentLength);
     }
-
-    public int GetRandomLane() => Random.Range(0, settings.laneCount);
+    
     private void HandleGameStart() => StartCoroutine(TrackUpdateRoutine());
     private void HandleSpeedChange(float newSpeed) => moveSpeed = newSpeed;
+
+    private void OnEnable()
+    {
+        GameEvents.OnGameStart += HandleGameStart;
+        GameEvents.OnSpeedChange += HandleSpeedChange;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnGameStart -= HandleGameStart;
+        GameEvents.OnSpeedChange -= HandleSpeedChange;
+    }
 }

@@ -2,17 +2,11 @@ using UnityEngine;
 
 [CreateAssetMenu(fileName = "SpawnSettings", menuName = "Game/Settings/SpawnSettings")]
 public class SpawnSettings : ScriptableObject
-{
-    [Header("Spawn Timing")]
-    public float minSpawnInterval = 1f;
-    public float maxSpawnInterval = 3f;
+{   
+    [Header("Spawn Settings")]
+    [Range(1, 5)] public int minObstaclesPerSegment = 2;     
+    [Range(3, 8)] public int maxObstaclesPerSegment = 5;   
     
-    [Header("Pool Settings")]
-    public int initialPoolSize = 10;
-    public int maxPoolSize = 20;
-    public int expandSize = 5;
-
-    [Header("Spawn Distance")]
-    public float spawnDistance = 100f;
-    public float despawnDistance = -10f;
+    [Header("Spacing")]
+    public float minDistanceBetweenVehicles = 20f; 
 }

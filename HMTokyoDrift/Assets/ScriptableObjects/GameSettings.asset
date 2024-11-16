@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92eda547db78a0d4f8b2fadfb7c76906, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: 
-  initialGameSpeed: 10
-  maxGameSpeed: 25
+  initialGameSpeed: 25
+  maxGameSpeed: 50
   speedIncreaseRate: 0.1
   difficultyMultiplier: 1
   maxDifficultyMultiplier: 2

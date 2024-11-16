@@ -1,26 +1,14 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : Singleton<SpawnManager>
 {
     [SerializeField] private SpawnSettings settings;
-    
-    private float nextSpawnTime;
-    private bool canSpawn;
-    private readonly System.Random random = new();
-    private const float MIN_DISTANCE_BETWEEN_OBSTACLES = 10f;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        Initialize();
-    }
+    [SerializeField] private VehicleFactory vehicleFactory;
 
     private void OnEnable()
     {
         GameEvents.OnGameStart += HandleGameStart;
-     
     }
 
     private void OnDisable()
@@ -28,61 +16,84 @@ public class SpawnManager : Singleton<SpawnManager>
         GameEvents.OnGameStart -= HandleGameStart;
     }
 
-    private void Initialize()
-    {
-        InitializePool();
-    }
-
-    private void InitializePool()
-    {
-        //
-    }
-
     private void HandleGameStart()
     {
-        canSpawn = true;
-        nextSpawnTime = Time.time;
-        StartCoroutine(SpawnRoutine());
+        SpawnInitialObstacles();
     }
-    private IEnumerator SpawnRoutine()
-    {
-        WaitForSeconds minWait = new(settings.minSpawnInterval);
 
-        while (canSpawn)
+    public void SpawnObstaclesForSegment(TrackSegment segment)
+    {
+        int obstacleCount = Mathf.RoundToInt(Mathf.Lerp(
+            settings.minObstaclesPerSegment,
+            settings.maxObstaclesPerSegment,
+            GameManager.Instance.DifficultyMultiplier
+        ));
+
+        List<(int lane, float zPos)> spawnPoints = new();
+        int attempts = 0;
+        int maxAttempts = obstacleCount * 3;
+
+        while (spawnPoints.Count < obstacleCount && attempts < maxAttempts)
         {
-            if (Time.time >= nextSpawnTime)
+            attempts++;
+
+            int lane = Random.Range(0, TrackManager.Instance.Settings.laneCount);
+            float zOffset = Random.Range(0f, TrackManager.Instance.Settings.segmentLength);
+            
+            bool isValidPosition = true;
+            foreach (var point in spawnPoints)
             {
-                SpawnObstacle();
-                float interval = GetRandomSpawnInterval();
-                nextSpawnTime = Time.time + interval;
-                yield return minWait;
+                if (point.lane == lane)
+                {
+                    float distance = Mathf.Abs(point.zPos - zOffset);
+                    if (distance < settings.minDistanceBetweenVehicles)
+                    {
+                        isValidPosition = false;
+                        break;
+                    }
+                }
             }
-            yield return null;
+
+            if (isValidPosition)
+            {
+                spawnPoints.Add((lane, zOffset));
+            }
         }
-    }
-
-    private void SpawnObstacle()
-    {
-        int randomLane = TrackManager.Instance.GetRandomLane();
-        Vector3 spawnPosition = TrackManager.Instance.GetSpawnPositionForLane(randomLane);
-        spawnPosition.z = settings.spawnDistance;
-
-        if (IsSpawnPositionClear(spawnPosition))
+        
+        foreach (var point in spawnPoints)
         {
-           //
+            Vector3 spawnPosition = TrackManager.Instance.GetSpawnPositionForLane(point.lane);
+            spawnPosition.z = segment.transform.position.z + point.zPos;
+
+            var obstacle = vehicleFactory.GetObstacleFromPool(spawnPosition, Quaternion.identity, point.lane);
+            if (obstacle != null)
+            {
+                obstacle.transform.SetParent(segment.transform);
+            }
         }
     }
-    private bool IsSpawnPositionClear(Vector3 position)
+
+    private void SpawnInitialObstacles()
     {
-        Collider[] colliders = Physics.OverlapSphere(position, MIN_DISTANCE_BETWEEN_OBSTACLES);
-        return colliders.Length == 0;
+        var segments = TrackManager.Instance.GetActiveSegments();
+        for (int i = 1; i < segments.Count; i++)
+        {
+            SpawnObstaclesForSegment(segments[i]);
+        }
     }
-    private float GetRandomSpawnInterval()
+
+    public void ClearObstaclesFromSegment(TrackSegment segment)
     {
-        return Mathf.Lerp(
-            settings.maxSpawnInterval,
-            settings.minSpawnInterval,
-            GameManager.Instance.DifficultyMultiplier / 2f
-        );
+        if (segment == null) return;
+
+        foreach (Transform child in segment.transform)
+        {
+            if (child.TryGetComponent<ObstacleVehicle>(out var obstacle))
+            {
+                obstacle.OnDespawn();
+                obstacle.transform.SetParent(null);
+                vehicleFactory.ReturnObstacleToPool(obstacle);
+            }
+        }
     }
 }
