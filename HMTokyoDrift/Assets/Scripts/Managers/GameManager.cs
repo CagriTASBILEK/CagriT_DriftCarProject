@@ -22,18 +22,19 @@ public class GameManager : Singleton<GameManager>
         InitializeGame();
     }
     
-    private void Start()
-    {
-        StartGame();
-    }
-    
     public void StartGame()
     {
         if (currentGameState == GameState.Playing) return;
         
+        ResetGameState();
         currentGameState = GameState.Playing;
-        GameEvents.TriggerGameStart();
+        currentGameSpeed = settings.initialGameSpeed;
+        
         GameEvents.TriggerSpeedChange(currentGameSpeed);
+        
+        GameEvents.TriggerGameStart();
+        
+        StartCoroutine(GameUpdateRoutine());
     }
 
     private void OnEnable()
@@ -49,18 +50,21 @@ public class GameManager : Singleton<GameManager>
     private void SubscribeToEvents()
     {
         GameEvents.OnGameStart += HandleGameStart;
+        GameEvents.OnGameOver += HandleGameOver;
     }
 
     private void UnsubscribeFromEvents()
     {
         GameEvents.OnGameStart -= HandleGameStart;
+        GameEvents.OnGameOver -= HandleGameOver;
     }
 
     private void InitializeGame()
     {
         if (isGameInitialized) return;
         
-        currentGameSpeed = settings.initialGameSpeed;
+        currentGameState = GameState.MainMenu;
+        currentGameSpeed = 0f;
         currentDifficultyMultiplier = settings.difficultyMultiplier;
         lastSpeedUpdateTime = 0f;
         lastDifficultyUpdateTime = 0f;
@@ -72,10 +76,36 @@ public class GameManager : Singleton<GameManager>
 
     private void HandleGameStart()
     {
+       
         if (currentGameState == GameState.Playing) return;
         
+        ResetGameState();
         currentGameState = GameState.Playing;
+        currentGameSpeed = settings.initialGameSpeed;
+        
+        
+        GameEvents.TriggerSpeedChange(currentGameSpeed);
+        
         StartCoroutine(GameUpdateRoutine());
+    }
+    
+    private void HandleGameOver()
+    {
+        if (currentGameState != GameState.Playing) return;
+        
+        StopAllCoroutines();
+        currentGameState = GameState.Defeat;
+        currentGameSpeed = 0f;
+        GameEvents.TriggerSpeedChange(currentGameSpeed);
+    }
+    
+    private void ResetGameState()
+    {
+        currentGameSpeed = settings.initialGameSpeed;
+        currentDifficultyMultiplier = settings.difficultyMultiplier;
+        lastSpeedUpdateTime = Time.time;
+        lastDifficultyUpdateTime = Time.time;
+        GameEvents.TriggerSpeedChange(currentGameSpeed);
     }
     
     private IEnumerator GameUpdateRoutine()
@@ -125,5 +155,6 @@ public class GameManager : Singleton<GameManager>
 public enum GameState
 {
     MainMenu,
-    Playing
+    Playing,
+    Defeat
 }

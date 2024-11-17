@@ -26,6 +26,19 @@ public class TrackManager : Singleton<TrackManager>
         InitializePool();
         InitializeLanes();
         SpawnInitialTrack();
+        SubscribeToEvents();
+    }
+    
+    private void SubscribeToEvents()
+    {
+        GameEvents.OnGameStart += HandleGameStart;
+        GameEvents.OnSpeedChange += HandleSpeedChange;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnGameStart -= HandleGameStart;
+        GameEvents.OnSpeedChange -= HandleSpeedChange;
     }
 
     private void InitializePool()
@@ -87,6 +100,8 @@ public class TrackManager : Singleton<TrackManager>
 
     private void MoveTrack()
     {
+        if (moveSpeed <= 0) return;
+        
         float movement = moveSpeed * UPDATE_INTERVAL;
         Vector3 moveVector = Vector3.back * movement;
 
@@ -126,18 +141,13 @@ public class TrackManager : Singleton<TrackManager>
         return new Vector3(lanePositions[laneIndex], 0f, settings.segmentLength);
     }
     
-    private void HandleGameStart() => StartCoroutine(TrackUpdateRoutine());
-    private void HandleSpeedChange(float newSpeed) => moveSpeed = newSpeed;
-
-    private void OnEnable()
+    private void HandleGameStart()
     {
-        GameEvents.OnGameStart += HandleGameStart;
-        GameEvents.OnSpeedChange += HandleSpeedChange;
+        moveSpeed = GameManager.Instance.CurrentGameSpeed;
+        StartCoroutine(TrackUpdateRoutine());
     }
-
-    private void OnDisable()
+    private void HandleSpeedChange(float newSpeed)
     {
-        GameEvents.OnGameStart -= HandleGameStart;
-        GameEvents.OnSpeedChange -= HandleSpeedChange;
+        moveSpeed = newSpeed;
     }
 }
