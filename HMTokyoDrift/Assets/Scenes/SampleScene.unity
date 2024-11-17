@@ -859,6 +859,7 @@ GameObject:
   - component: {fileID: 1453593772}
   - component: {fileID: 1453593773}
   - component: {fileID: 1453593774}
+  - component: {fileID: 1453593775}
   m_Layer: 0
   m_Name: PlayerManager
   m_TagString: Untagged
@@ -894,6 +895,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerFactory: {fileID: 1453593774}
+  policeFactory: {fileID: 1453593775}
 --- !u!114 &1453593774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -907,6 +909,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: d33d4f8c8bc9edb4c8bd1ed2015d4ac9, type: 2}
+--- !u!114 &1453593775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1453593771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab9b767f07522d94da8031ca591da9d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settings: {fileID: 11400000, guid: 2dde40f82757a094ca993082fbca1d1b, type: 2}
 --- !u!1 &1691761138
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a387c5086b19f44c9b6a69bceff13cd, type: 3}
+  m_Name: PoliceVehicleSettings
+  m_EditorClassIdentifier: 
+  policePrefab: {fileID: 5271114098494638168, guid: 6ed1b2a2dc8df544fa18aa0b9b25557b, type: 3}
+  defaultDistance: 3
+  catchDistance: -4
+  escapeDistance: 3
+  horizontalSpeed: 100
+  lerpSpeed: 1.5
+  collisionRecoveryTime: 1
+  collisionPushDistance: 4
+  initialPoolSize: 1
+  maxPoolSize: 1
