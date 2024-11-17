@@ -9,16 +9,28 @@ public class SpawnManager : Singleton<SpawnManager>
     private void OnEnable()
     {
         GameEvents.OnGameStart += HandleGameStart;
+        GameEvents.OnGameOver += HandleGameOver;
     }
 
     private void OnDisable()
     {
         GameEvents.OnGameStart -= HandleGameStart;
+        GameEvents.OnGameOver -= HandleGameOver;
     }
 
     private void HandleGameStart()
     {
+        var segments = TrackManager.Instance.GetActiveSegments();
+        foreach (var segment in segments)
+        {
+            ClearObstaclesFromSegment(segment);
+        }
         SpawnInitialObstacles();
+    }
+    
+    private void HandleGameOver()
+    {
+        Debug.Log("SpawnManager: Game Over");
     }
 
     public void SpawnObstaclesForSegment(TrackSegment segment)

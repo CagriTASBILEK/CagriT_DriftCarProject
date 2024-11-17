@@ -11,9 +11,8 @@ namespace View
         [SerializeField] private GameObject gameplayPanel;
         [SerializeField] private GameObject defeatPanel;
 
-        [Header("UI Elements")] [SerializeField]
-        private Button playButton;
-
+        [Header("UI Elements")] 
+        [SerializeField] private Button playButton;
         [SerializeField] private Button restartButton;
         [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private TextMeshProUGUI finalScoreText;
@@ -73,6 +72,14 @@ namespace View
             mainMenuPanel?.SetActive(newState == GameState.MainMenu);
             gameplayPanel?.SetActive(newState == GameState.Playing);
             defeatPanel?.SetActive(newState == GameState.Defeat);
+            
+            if (newState == GameState.Defeat)
+            {
+                if (finalScoreText != null && scoreText != null)
+                {
+                    finalScoreText.text = scoreText.text;
+                }
+            }
         }
 
         private void HandleScoreChanged(float newScore)

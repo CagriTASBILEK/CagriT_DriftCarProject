@@ -44,8 +44,7 @@ public class PlayerVehicle : VehicleBase
         currentState = newState;
         currentState.EnterState();
     }
-
-    // Input değerini dışarıdan set etmek için
+    
     public void SetInput(float input)
     {
         horizontalInput = input;
@@ -72,16 +71,22 @@ public class PlayerVehicle : VehicleBase
 
     public override void HandleCollision(IVehicle other)
     {
+        if (other is ObstacleVehicle)
+        {
+            GameEvents.TriggerGameOver();
+        }
     }
     
     private void OnEnable()
     {
         GameEvents.OnInputReceived += HandleInput;
+        GameEvents.OnGameStart += HandleGameStart;
     }
 
     private void OnDisable()
     {
         GameEvents.OnInputReceived -= HandleInput;
+        GameEvents.OnGameStart -= HandleGameStart;
     }
 
     private void HandleInput(float input)
@@ -90,6 +95,12 @@ public class PlayerVehicle : VehicleBase
         horizontalInput = input;
     }
     
-    
+    private void HandleGameStart()
+    {
+        Debug.Log("PlayerVehicle: Starting new game");
+        transform.position = Vector3.zero;
+        transform.rotation = Quaternion.identity;
+        ChangeState(new NormalState(this, settings, wheelController));
+    }
     
 }

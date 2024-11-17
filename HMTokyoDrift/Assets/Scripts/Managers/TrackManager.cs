@@ -25,7 +25,6 @@ public class TrackManager : Singleton<TrackManager>
     {
         InitializePool();
         InitializeLanes();
-        SpawnInitialTrack();
         SubscribeToEvents();
     }
     
@@ -33,12 +32,14 @@ public class TrackManager : Singleton<TrackManager>
     {
         GameEvents.OnGameStart += HandleGameStart;
         GameEvents.OnSpeedChange += HandleSpeedChange;
+        GameEvents.OnGameOver += HandleGameOver;
     }
 
     private void OnDisable()
     {
         GameEvents.OnGameStart -= HandleGameStart;
         GameEvents.OnSpeedChange -= HandleSpeedChange;
+        GameEvents.OnGameOver -= HandleGameOver;
     }
 
     private void InitializePool()
@@ -143,8 +144,24 @@ public class TrackManager : Singleton<TrackManager>
     
     private void HandleGameStart()
     {
+        foreach (var segment in activeSegments)
+        {
+            if (segment != null)
+            {
+                segment.OnDespawn();
+                trackPool.Return(segment);
+            }
+        }
+        activeSegments.Clear();
+        
+        SpawnInitialTrack();
         moveSpeed = GameManager.Instance.CurrentGameSpeed;
         StartCoroutine(TrackUpdateRoutine());
+    }
+    private void HandleGameOver()
+    {
+        StopAllCoroutines();
+        moveSpeed = 0f;
     }
     private void HandleSpeedChange(float newSpeed)
     {

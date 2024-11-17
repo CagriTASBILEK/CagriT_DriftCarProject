@@ -36,6 +36,7 @@ public class GameManager : Singleton<GameManager>
         
         StartCoroutine(GameUpdateRoutine());
     }
+    
 
     private void OnEnable()
     {
@@ -101,11 +102,11 @@ public class GameManager : Singleton<GameManager>
     
     private void ResetGameState()
     {
+        StopAllCoroutines();
         currentGameSpeed = settings.initialGameSpeed;
         currentDifficultyMultiplier = settings.difficultyMultiplier;
         lastSpeedUpdateTime = Time.time;
         lastDifficultyUpdateTime = Time.time;
-        GameEvents.TriggerSpeedChange(currentGameSpeed);
     }
     
     private IEnumerator GameUpdateRoutine()
