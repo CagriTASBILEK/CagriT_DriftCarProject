@@ -18,11 +18,24 @@ public class TrackManager : Singleton<TrackManager>
     protected override void Awake()
     {
         base.Awake();
+    
+        if (settings == null)
+        {
+            Debug.LogError("Track Settings is missing! Please assign it in the inspector.");
+            return;
+        }
+    
         lanePositions = new float[settings.laneCount];
     }
 
     public void Initialize()
     {
+        if (settings == null)
+        {
+            Debug.LogError("Cannot initialize TrackManager: Track Settings is missing!");
+            return;
+        }
+
         InitializePool();
         InitializeLanes();
         SubscribeToEvents();

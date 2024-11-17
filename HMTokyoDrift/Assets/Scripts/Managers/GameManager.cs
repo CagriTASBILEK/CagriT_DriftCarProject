@@ -19,6 +19,22 @@ public class GameManager : Singleton<GameManager>
     protected override void Awake()
     {
         base.Awake();
+    
+    if (settings == null)
+    {
+        Debug.LogError("Game Settings is missing! Please assign it in the inspector.");
+        return;
+    }
+    
+    currentGameState = GameState.MainMenu;
+    currentGameSpeed = 0f;
+    currentDifficultyMultiplier = settings.difficultyMultiplier;
+    lastSpeedUpdateTime = 0f;
+    lastDifficultyUpdateTime = 0f;
+    }
+    
+    private void Start()
+    {
         InitializeGame();
     }
     
@@ -63,16 +79,17 @@ public class GameManager : Singleton<GameManager>
     private void InitializeGame()
     {
         if (isGameInitialized) return;
-        
-        currentGameState = GameState.MainMenu;
-        currentGameSpeed = 0f;
-        currentDifficultyMultiplier = settings.difficultyMultiplier;
-        lastSpeedUpdateTime = 0f;
-        lastDifficultyUpdateTime = 0f;
-        isGameInitialized = true;
-        
+    
+        if (TrackManager.Instance == null)
+        {
+            Debug.LogError("TrackManager instance is missing!");
+            return;
+        }
+    
         TrackManager.Instance.Initialize();
         GameEvents.TriggerGameInitialize();
+    
+        isGameInitialized = true;
     }
 
     private void HandleGameStart()
