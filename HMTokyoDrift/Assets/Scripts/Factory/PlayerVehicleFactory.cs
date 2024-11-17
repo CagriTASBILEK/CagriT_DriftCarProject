@@ -1,59 +1,68 @@
+using Core.Pool;
+using Scriptables;
 using UnityEngine;
+using Vehicles;
 
-public class PlayerVehicleFactory : VehicleFactoryBase
+namespace Factory
 {
-    [SerializeField] private PlayerVehicleSettings settings;
-    private ObjectPool<PlayerVehicle> playerPool;
-
-    protected override void InitializePool()
+    /// <summary>
+    /// Factory responsible for creating and managing player vehicle pool
+    /// </summary>
+    public class PlayerVehicleFactory : VehicleFactoryBase
     {
-        if (!ValidateSettings()) return;
+        [SerializeField] private PlayerVehicleSettings settings;
+        private ObjectPool<PlayerVehicle> playerPool;
 
-        var prefab = settings.playerPrefab.GetComponent<PlayerVehicle>();
-        if (prefab == null)
+        protected override void InitializePool()
         {
-            Debug.LogError("PlayerVehicle component missing on prefab!");
-            return;
+            if (!ValidateSettings()) return;
+
+            var prefab = settings.playerPrefab.GetComponent<PlayerVehicle>();
+            if (prefab == null)
+            {
+                Debug.LogError("PlayerVehicle component missing on prefab!");
+                return;
+            }
+
+            playerPool = new ObjectPool<PlayerVehicle>(
+                prefab,
+                transform,
+                settings.initialPoolSize,
+                settings.maxPoolSize
+            );
         }
 
-        playerPool = new ObjectPool<PlayerVehicle>(
-            prefab,
-            transform,
-            settings.initialPoolSize,
-            settings.maxPoolSize
-        );
-    }
-
-    private bool ValidateSettings()
-    {
-        if (settings == null || settings.playerPrefab == null)
+        private bool ValidateSettings()
         {
-            Debug.LogError("PlayerVehicleSettings is missing or invalid!");
-            return false;
+            if (settings == null || settings.playerPrefab == null)
+            {
+                Debug.LogError("PlayerVehicleSettings is missing or invalid!");
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
 
-    public override VehicleBase GetVehicle(Vector3 position, Quaternion rotation, int lane)
-    {
-        var player = playerPool.Get(position, rotation);
-        if (player != null)
+        public override VehicleBase GetVehicle(Vector3 position, Quaternion rotation, int lane)
         {
-            player.Initialize(lane);
+            var player = playerPool.Get(position, rotation);
+            if (player != null)
+            {
+                player.Initialize(lane);
+            }
+            return player;
         }
-        return player;
-    }
 
-    public override void ReturnVehicle(VehicleBase vehicle)
-    {
-        if (vehicle is PlayerVehicle player)
+        public override void ReturnVehicle(VehicleBase vehicle)
         {
-            playerPool.Return(player);
+            if (vehicle is PlayerVehicle player)
+            {
+                playerPool.Return(player);
+            }
         }
-    }
 
-    public override void ReturnAllVehicles()
-    {
-        playerPool?.ReturnAll();
+        public override void ReturnAllVehicles()
+        {
+            playerPool?.ReturnAll();
+        }
     }
 }

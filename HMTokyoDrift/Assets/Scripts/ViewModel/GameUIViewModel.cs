@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using Core.Events;
+using Managers;
 using Model;
 using UnityEngine;
 

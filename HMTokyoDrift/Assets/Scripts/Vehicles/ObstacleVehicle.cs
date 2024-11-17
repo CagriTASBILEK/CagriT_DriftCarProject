@@ -1,19 +1,22 @@
-using UnityEngine;
+using Interfaces;
 
-public class ObstacleVehicle : VehicleBase
+namespace Vehicles
 {
-    public override void UpdateMovement()
+    public class ObstacleVehicle : VehicleBase
     {
-    }
-    public override void HandleCollision(IVehicle other)
-    {
-        if (other is ObstacleVehicle)
+        public override void UpdateMovement()
         {
-            OnDespawn();
         }
-    }
-    public override void Initialize(int lane)
-    {
-        base.Initialize(lane);
+        public override void HandleCollision(IVehicle other)
+        {
+            if (other is ObstacleVehicle)
+            {
+                OnDespawn();
+            }
+        }
+        public override void Initialize(int lane)
+        {
+            base.Initialize(lane);
+        }
     }
 }

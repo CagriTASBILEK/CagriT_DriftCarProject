@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using ScriptableObjects;
+using Core.Events;
+using Scriptables;
 using UnityEngine;
 
 namespace Managers

@@ -1,8 +1,12 @@
 using UnityEngine;
+using Vehicles;
 
-public interface IVehicleFactory
+namespace Interfaces
 {
-    VehicleBase GetVehicle(Vector3 position, Quaternion rotation, int lane);
-    void ReturnVehicle(VehicleBase vehicle);
-    void ReturnAllVehicles();
+    public interface IVehicleFactory
+    {
+        VehicleBase GetVehicle(Vector3 position, Quaternion rotation, int lane);
+        void ReturnVehicle(VehicleBase vehicle);
+        void ReturnAllVehicles();
+    }
 }

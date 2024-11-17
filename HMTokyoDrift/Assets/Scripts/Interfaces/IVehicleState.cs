@@ -1,8 +1,11 @@
 
-public interface IVehicleState
+namespace Interfaces
 {
-    void EnterState();
-    void ExitState();
-    void HandlePhysics(float deltaTime);
-    void HandleInput(float inputValue);
+    public interface IVehicleState
+    {
+        void EnterState();
+        void ExitState();
+        void HandlePhysics(float deltaTime);
+        void HandleInput(float inputValue);
+    }
 }

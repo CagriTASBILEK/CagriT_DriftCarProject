@@ -1,6 +1,9 @@
-public interface IPoolable
+namespace Interfaces
 {
-    bool IsActive { get; }
-    void OnSpawn();
-    void OnDespawn();
+    public interface IPoolable
+    {
+        bool IsActive { get; }
+        void OnSpawn();
+        void OnDespawn();
+    }
 }

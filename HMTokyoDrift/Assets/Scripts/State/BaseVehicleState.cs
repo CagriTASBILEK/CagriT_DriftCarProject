@@ -1,46 +1,56 @@
+using Core.Events;
+using Interfaces;
+using Scriptables;
 using UnityEngine;
+using Vehicles;
 
-public abstract class BaseVehicleState : IVehicleState
+namespace State
 {
-    protected readonly PlayerVehicle vehicle;
-    protected readonly PlayerVehicleSettings settings;
-    protected readonly IWheelController wheelController;
-
-    protected BaseVehicleState(PlayerVehicle vehicle, PlayerVehicleSettings settings, IWheelController wheelController)
+    /// <summary>
+    /// Base class for all vehicle states implementing common functionality
+    /// </summary>
+    public abstract class BaseVehicleState : IVehicleState
     {
-        this.vehicle = vehicle;
-        this.settings = settings;
-        this.wheelController = wheelController;
-    }
+        protected readonly PlayerVehicle vehicle;
+        protected readonly PlayerVehicleSettings settings;
+        protected readonly IWheelController wheelController;
 
-    public virtual void EnterState()
-    {
-       // Debug.Log($"<color=green>Entering State: {this.GetType().Name}</color>");
-        GameEvents.TriggerVehicleStateChanged(this);
-    }
-
-    public virtual void ExitState() 
-    {
-       // Debug.Log($"<color=red>Exiting State: {this.GetType().Name}</color>");
-        wheelController.ResetWheels();
-    }
-
-    public abstract void HandlePhysics(float deltaTime);
-    public abstract void HandleInput(float inputValue);
-
-    protected void UpdateVehiclePosition(Vector3 newPosition)
-    {
-        if (vehicle != null)
+        protected BaseVehicleState(PlayerVehicle vehicle, PlayerVehicleSettings settings, IWheelController wheelController)
         {
-            vehicle.transform.position = newPosition;
+            this.vehicle = vehicle;
+            this.settings = settings;
+            this.wheelController = wheelController;
         }
-    }
 
-    protected void UpdateVehicleRotation(Quaternion newRotation)
-    {
-        if (vehicle != null)
+        public virtual void EnterState()
         {
-            vehicle.transform.rotation = newRotation;
+            // Debug.Log($"<color=green>Entering State: {this.GetType().Name}</color>");
+            GameEvents.TriggerVehicleStateChanged(this);
+        }
+
+        public virtual void ExitState() 
+        {
+            // Debug.Log($"<color=red>Exiting State: {this.GetType().Name}</color>");
+            wheelController.ResetWheels();
+        }
+
+        public abstract void HandlePhysics(float deltaTime);
+        public abstract void HandleInput(float inputValue);
+
+        protected void UpdateVehiclePosition(Vector3 newPosition)
+        {
+            if (vehicle != null)
+            {
+                vehicle.transform.position = newPosition;
+            }
+        }
+
+        protected void UpdateVehicleRotation(Quaternion newRotation)
+        {
+            if (vehicle != null)
+            {
+                vehicle.transform.rotation = newRotation;
+            }
         }
     }
 }

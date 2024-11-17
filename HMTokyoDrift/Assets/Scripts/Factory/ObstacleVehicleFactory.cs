@@ -1,82 +1,97 @@
 using System.Collections.Generic;
+using Core.Pool;
+using Scriptables;
 using UnityEngine;
+using Vehicles;
 
-public class ObstacleVehicleFactory : VehicleFactoryBase
+namespace Factory
 {
-    [SerializeField] private ObstacleVehicleSettings settings;
-    private ObjectPool<ObstacleVehicle>[] obstaclePools;
-    private List<int> validPoolIndices = new();
-
-    private void Awake()
+    /// <summary>
+    /// Factory responsible for creating and managing obstacle vehicle pools
+    /// </summary>
+    public class ObstacleVehicleFactory : VehicleFactoryBase
     {
-        InitializePool();
-    }
+        [SerializeField] private ObstacleVehicleSettings settings;
+        private ObjectPool<ObstacleVehicle>[] obstaclePools;
+        private List<int> validPoolIndices = new();
 
-    protected override void InitializePool()
-    {
-        obstaclePools = new ObjectPool<ObstacleVehicle>[settings.obstaclePrefabs.Length];
-        validPoolIndices.Clear();
-
-        int minPoolSize = Mathf.Max(5, settings.initialPoolSize / settings.obstaclePrefabs.Length);
-
-        for (int i = 0; i < settings.obstaclePrefabs.Length; i++)
+        private void Awake()
         {
-            if (settings.obstaclePrefabs[i] == null) continue;
-
-            var prefab = settings.obstaclePrefabs[i].GetComponent<ObstacleVehicle>();
-            if (prefab == null) continue;
-
-            obstaclePools[i] = new ObjectPool<ObstacleVehicle>(
-                prefab,
-                transform,
-                minPoolSize,
-                settings.maxPoolSize / settings.obstaclePrefabs.Length,
-                settings.expandSize
-            );
-
-            validPoolIndices.Add(i);
-        }
-    }
-
-    public override VehicleBase GetVehicle(Vector3 position, Quaternion rotation, int lane)
-    {
-        if (validPoolIndices.Count == 0)
-        {
-            Debug.LogError("No valid pools available!");
-            return null;
+            InitializePool();
         }
 
-        int randomIndex = validPoolIndices[Random.Range(0, validPoolIndices.Count)];
-        var selectedPool = obstaclePools[randomIndex];
-
-        var obstacle = selectedPool.Get(position, rotation);
-        if (obstacle != null)
+        protected override void InitializePool()
         {
-            obstacle.Initialize(lane);
-        }
+            obstaclePools = new ObjectPool<ObstacleVehicle>[settings.obstaclePrefabs.Length];
+            validPoolIndices.Clear();
 
-        return obstacle;
-    }
+            int minPoolSize = Mathf.Max(5, settings.initialPoolSize / settings.obstaclePrefabs.Length);
 
-    public override void ReturnVehicle(VehicleBase vehicle)
-    {
-        if (vehicle is not ObstacleVehicle obstacle) return;
-        
-        for (int i = 0; i < settings.obstaclePrefabs.Length; i++)
-        {
-            if (settings.obstaclePrefabs[i] != null &&
-                obstacle.gameObject.name.Contains(settings.obstaclePrefabs[i].name))
+            for (int i = 0; i < settings.obstaclePrefabs.Length; i++)
             {
-                obstaclePools[i]?.Return(obstacle);
-                break;
+                if (settings.obstaclePrefabs[i] == null) continue;
+
+                var prefab = settings.obstaclePrefabs[i].GetComponent<ObstacleVehicle>();
+                if (prefab == null) continue;
+
+                obstaclePools[i] = new ObjectPool<ObstacleVehicle>(
+                    prefab,
+                    transform,
+                    minPoolSize,
+                    settings.maxPoolSize / settings.obstaclePrefabs.Length,
+                    settings.expandSize
+                );
+
+                validPoolIndices.Add(i);
             }
         }
-    }
-    public override void ReturnAllVehicles()
-    {
-        foreach (var poolIndex in validPoolIndices)
+
+        /// <summary>
+        /// Gets a random obstacle vehicle from the pool
+        /// </summary>
+        public override VehicleBase GetVehicle(Vector3 position, Quaternion rotation, int lane)
         {
-            obstaclePools[poolIndex]?.ReturnAll();
+            if (validPoolIndices.Count == 0)
+            {
+                Debug.LogError("No valid pools available!");
+                return null;
+            }
+
+            int randomIndex = validPoolIndices[Random.Range(0, validPoolIndices.Count)];
+            var selectedPool = obstaclePools[randomIndex];
+
+            var obstacle = selectedPool.Get(position, rotation);
+            if (obstacle != null)
+            {
+                obstacle.Initialize(lane);
+            }
+
+            return obstacle;
+        }
+
+        /// <summary>
+        /// Returns an obstacle vehicle to its appropriate pool
+        /// </summary>
+        public override void ReturnVehicle(VehicleBase vehicle)
+        {
+            if (vehicle is not ObstacleVehicle obstacle) return;
+        
+            for (int i = 0; i < settings.obstaclePrefabs.Length; i++)
+            {
+                if (settings.obstaclePrefabs[i] != null &&
+                    obstacle.gameObject.name.Contains(settings.obstaclePrefabs[i].name))
+                {
+                    obstaclePools[i]?.Return(obstacle);
+                    break;
+                }
+            }
+        }
+        public override void ReturnAllVehicles()
+        {
+            foreach (var poolIndex in validPoolIndices)
+            {
+                obstaclePools[poolIndex]?.ReturnAll();
+            }
         }
     }
 }

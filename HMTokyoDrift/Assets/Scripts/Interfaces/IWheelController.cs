@@ -1,5 +1,8 @@
-public interface IWheelController
+namespace Interfaces
 {
-    void UpdateWheels(float tiltAngle, float turnAngle);
-    void ResetWheels();
+    public interface IWheelController
+    {
+        void UpdateWheels(float tiltAngle, float turnAngle);
+        void ResetWheels();
+    }
 }

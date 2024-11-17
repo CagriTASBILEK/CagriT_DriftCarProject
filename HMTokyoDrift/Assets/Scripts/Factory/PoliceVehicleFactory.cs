@@ -1,59 +1,68 @@
+using Core.Pool;
+using Scriptables;
 using UnityEngine;
+using Vehicles;
 
-public class PoliceVehicleFactory : VehicleFactoryBase
+namespace Factory
 {
-    [SerializeField] private PoliceVehicleSettings settings;
-    private ObjectPool<PoliceVehicle> policePool;
-
-    protected override void InitializePool()
+    /// <summary>
+    /// Factory responsible for creating and managing police vehicle pool
+    /// </summary>
+    public class PoliceVehicleFactory : VehicleFactoryBase
     {
-        if (!ValidateSettings()) return;
+        [SerializeField] private PoliceVehicleSettings settings;
+        private ObjectPool<PoliceVehicle> policePool;
 
-        var prefab = settings.policePrefab.GetComponent<PoliceVehicle>();
-        if (prefab == null)
+        protected override void InitializePool()
         {
-            Debug.LogError("PoliceVehicle component missing on prefab!");
-            return;
+            if (!ValidateSettings()) return;
+
+            var prefab = settings.policePrefab.GetComponent<PoliceVehicle>();
+            if (prefab == null)
+            {
+                Debug.LogError("PoliceVehicle component missing on prefab!");
+                return;
+            }
+
+            policePool = new ObjectPool<PoliceVehicle>(
+                prefab,
+                transform,
+                settings.initialPoolSize,
+                settings.maxPoolSize
+            );
         }
 
-        policePool = new ObjectPool<PoliceVehicle>(
-            prefab,
-            transform,
-            settings.initialPoolSize,
-            settings.maxPoolSize
-        );
-    }
-
-    private bool ValidateSettings()
-    {
-        if (settings == null || settings.policePrefab == null)
+        private bool ValidateSettings()
         {
-            Debug.LogError("PoliceVehicleSettings is missing or invalid!");
-            return false;
+            if (settings == null || settings.policePrefab == null)
+            {
+                Debug.LogError("PoliceVehicleSettings is missing or invalid!");
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
 
-    public override VehicleBase GetVehicle(Vector3 position, Quaternion rotation, int lane)
-    {
-        var police = policePool.Get(position, rotation);
-        if (police != null)
+        public override VehicleBase GetVehicle(Vector3 position, Quaternion rotation, int lane)
         {
-            police.Initialize(lane,settings);
+            var police = policePool.Get(position, rotation);
+            if (police != null)
+            {
+                police.Initialize(lane,settings);
+            }
+            return police;
         }
-        return police;
-    }
 
-    public override void ReturnVehicle(VehicleBase vehicle)
-    {
-        if (vehicle is PoliceVehicle police)
+        public override void ReturnVehicle(VehicleBase vehicle)
         {
-            policePool.Return(police);
+            if (vehicle is PoliceVehicle police)
+            {
+                policePool.Return(police);
+            }
         }
-    }
 
-    public override void ReturnAllVehicles()
-    {
-        policePool?.ReturnAll();
+        public override void ReturnAllVehicles()
+        {
+            policePool?.ReturnAll();
+        }
     }
 }

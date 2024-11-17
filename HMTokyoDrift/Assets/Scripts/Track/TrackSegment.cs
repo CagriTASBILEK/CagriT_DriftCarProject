@@ -1,20 +1,25 @@
+using Interfaces;
+using Managers;
 using UnityEngine;
 
-public class TrackSegment : MonoBehaviour, IPoolable
+namespace Track
 {
-    public bool IsActive => gameObject.activeSelf;
-
-    public void OnSpawn()
+    public class TrackSegment : MonoBehaviour, IPoolable
     {
-        gameObject.SetActive(true);
-    }
+        public bool IsActive => gameObject.activeSelf;
 
-    public void OnDespawn()
-    {
-        if (SpawnManager.Instance != null)
+        public void OnSpawn()
         {
-            SpawnManager.Instance.ClearObstaclesFromSegment(this);
+            gameObject.SetActive(true);
         }
-        gameObject.SetActive(false);
+
+        public void OnDespawn()
+        {
+            if (SpawnManager.Instance != null)
+            {
+                SpawnManager.Instance.ClearObstaclesFromSegment(this);
+            }
+            gameObject.SetActive(false);
+        }
     }
 }
