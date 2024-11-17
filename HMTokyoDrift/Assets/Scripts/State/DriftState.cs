@@ -3,40 +3,44 @@ using UnityEngine;
 public class DriftState : BaseVehicleState
 {
     private float driftDirection;
+    private float driftStartTime;
+    private float currentDriftAngle;
 
     public DriftState(PlayerVehicle vehicle, PlayerVehicleSettings settings, IWheelController wheelController) 
         : base(vehicle, settings, wheelController)
     {
         driftDirection = 0f;
+        driftStartTime = Time.time;
     }
 
     public override void EnterState()
     {
         base.EnterState();
-        GameEvents.TriggerVehicleDriftStarted(driftDirection);
+        driftStartTime = Time.time;
     }
 
     public override void ExitState()
     {
         base.ExitState();
-        GameEvents.TriggerVehicleDriftEnded();
+        float driftDuration = Time.time - driftStartTime;
+        float driftScore = CalculateDriftScore(driftDuration, currentDriftAngle);
+        GameEvents.TriggerScoreChange((int)driftScore);
     }
 
     public override void HandlePhysics(float deltaTime)
     {
-        float tilt = -driftDirection * settings.tiltAngle;    // Z ekseni eğimi
-        float rotation = driftDirection * -settings.rotationAngle;  // Y ekseni yönü
-    
-        // Mevcut rotasyonu al
+        float tilt = -driftDirection * settings.tiltAngle;   
+        float rotation = driftDirection * -settings.rotationAngle; 
+        
         Vector3 currentRotation = vehicle.transform.rotation.eulerAngles;
-    
-        // Yeni rotasyonu oluştur (X'i zorla 0 yap)
+        
         Quaternion targetRotation = Quaternion.Euler(0f, rotation, tilt);
         Quaternion newRotation = Quaternion.Lerp(vehicle.transform.rotation, targetRotation, deltaTime * settings.driftSpeed);
-    
-        // X rotasyonunu zorla 0 yap
+   
         Vector3 newEuler = newRotation.eulerAngles;
         newEuler.x = 0f;
+        
+        currentDriftAngle = Mathf.Abs(tilt);
     
         UpdateVehicleRotation(Quaternion.Euler(newEuler));
     
@@ -62,5 +66,12 @@ public class DriftState : BaseVehicleState
         );
         
         UpdateVehiclePosition(newPosition);
+    }
+    
+    private float CalculateDriftScore(float duration, float angle)
+    {
+        float baseScore = duration * 100f;
+        float angleMultiplier = angle / settings.tiltAngle;
+        return baseScore * angleMultiplier;
     }
 }

@@ -8,9 +8,9 @@ namespace ViewModel
     public class GameUIViewModel : MonoBehaviour
     {
         private GameUIModel model;
-        
         public event Action<float> OnScoreChanged;
         public event Action<GameState> OnGameStateChanged;
+
     
         private void Awake()
         {
@@ -21,12 +21,14 @@ namespace ViewModel
         {
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnGameOver += HandleGameOver;
+            GameEvents.OnScoreChange += HandleScoreChange;
         }
 
         private void OnDisable()
         {
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnGameOver -= HandleGameOver;
+            GameEvents.OnScoreChange -= HandleScoreChange;
         }
         
         public void OnPlayButtonClicked()
@@ -42,8 +44,7 @@ namespace ViewModel
             OnGameStateChanged?.Invoke(GameState.MainMenu);
             OnScoreChanged?.Invoke(0);
         }
-
-       
+        
         private void HandleGameStart()
         {
             model.SetGameState(GameState.Playing);
@@ -57,11 +58,10 @@ namespace ViewModel
             model.SetGameState(GameState.Defeat);
             OnGameStateChanged?.Invoke(GameState.Defeat);
         }
-
-       
-        public void UpdateScore(float points)
+        
+        private void HandleScoreChange(int score)
         {
-            model.UpdateScore(points);
+            model.UpdateScore(score);
             OnScoreChanged?.Invoke(model.Score);
         }
     }
