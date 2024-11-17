@@ -16,6 +16,6 @@ MonoBehaviour:
   activeSegmentCount: 3
   segmentLength: 120
   laneCount: 3
-  laneWidth: 2
+  laneWidth: 4
   initialPoolSize: 5
   maxPoolSize: 8
