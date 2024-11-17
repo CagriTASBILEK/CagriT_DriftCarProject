@@ -14,15 +14,23 @@ public static class GameEvents
     public static event Action<int> OnScoreChange;
     public static event Action<int> OnHighScoreChange;
     
+    public static event Action<IVehicleState> OnVehicleStateChanged;
+    public static event Action<float> OnVehicleDriftStarted;
+    public static event Action OnVehicleDriftEnded;
+    public static event Action<float> OnInputReceived;
+    
     public static void TriggerGameInitialize() => OnGameInitialize?.Invoke();
     public static void TriggerGameStart() => OnGameStart?.Invoke();
     public static void TriggerGamePause() => OnGamePause?.Invoke();
     public static void TriggerGameResume() => OnGameResume?.Invoke();
     public static void TriggerGameOver() => OnGameOver?.Invoke();
-    
     public static void TriggerSpeedChange(float speed) => OnSpeedChange?.Invoke(speed);
     public static void TriggerCollision(IDamageable target) => OnCollision?.Invoke(target);
-    
     public static void TriggerScoreChange(int score) => OnScoreChange?.Invoke(score);
     public static void TriggerHighScoreChange(int highScore) => OnHighScoreChange?.Invoke(highScore);
+    public static void TriggerVehicleStateChanged(IVehicleState newState) => OnVehicleStateChanged?.Invoke(newState);
+    public static void TriggerVehicleDriftStarted(float angle) => OnVehicleDriftStarted?.Invoke(angle);
+    public static void TriggerVehicleDriftEnded() => OnVehicleDriftEnded?.Invoke();
+    public static void TriggerInputReceived(float value) => OnInputReceived?.Invoke(value);
+    
 }

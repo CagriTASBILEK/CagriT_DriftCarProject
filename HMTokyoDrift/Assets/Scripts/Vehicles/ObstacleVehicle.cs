@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class ObstacleVehicle : VehicleBase
 {
+    public override void UpdateMovement()
+    {
+    }
     public override void HandleCollision(IVehicle other)
     {
         if (other is ObstacleVehicle)

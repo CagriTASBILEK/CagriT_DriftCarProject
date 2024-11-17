@@ -13,5 +13,14 @@ MonoBehaviour:
   m_Name: PlayerVehicleSettings
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 6302991580782884940, guid: 67afac91460758648a192e444ca155af, type: 3}
+  normalSteerSpeed: 1.5
+  driftSpeed: 1.5
+  returnSpeed: 3
+  maxSteerDistance: 5
+  maxDriftDistance: 5
+  driftThreshold: 0.3
+  tiltAngle: 25
+  rotationAngle: 75
+  wheelTurnAngle: -45
   initialPoolSize: 1
   maxPoolSize: 1

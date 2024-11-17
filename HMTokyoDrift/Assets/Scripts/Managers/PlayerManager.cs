@@ -10,17 +10,34 @@ public class PlayerManager : Singleton<PlayerManager>
     {
         GameEvents.OnGameStart += HandleGameStart;
         GameEvents.OnGameOver += HandleGameOver;
+        GameEvents.OnInputReceived += HandleMovement;
     }
 
     private void OnDisable()
     {
         GameEvents.OnGameStart -= HandleGameStart;
         GameEvents.OnGameOver -= HandleGameOver;
+        GameEvents.OnInputReceived -= HandleMovement;
         
         if (currentPlayer != null)
         {
             playerFactory.ReturnVehicle(currentPlayer);
         }
+    }
+    
+    private void HandleMovement(float input)
+    {
+        if (GameManager.Instance.CurrentGameState != GameState.Playing) return;
+        currentPlayer?.UpdateMovement();
+    }
+    
+    public void SetCurrentPlayer(PlayerVehicle player)
+    {
+        currentPlayer = player;
+    }
+    public void ClearCurrentPlayer()
+    {
+        currentPlayer = null;
     }
 
     private void HandleGameStart()

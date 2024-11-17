@@ -11,6 +11,7 @@ public abstract class VehicleBase : MonoBehaviour, IVehicle, IPoolable
     {
         currentLane = lane;
     }
+    public abstract void UpdateMovement(); 
     public abstract void HandleCollision(IVehicle other);
     public virtual void OnSpawn()
     {
